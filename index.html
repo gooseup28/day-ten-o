@@ -33,6 +33,9 @@
             --device-w: 414px;
             --device-h: 868px;
             --scale: 1;
+            /* iOS 스타일 곡선: 빠르게 출발해서 부드럽게 멈춤 */
+            --ease-out: cubic-bezier(0.25, 1, 0.5, 1);
+            --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -58,6 +61,11 @@
             max-width: 1100px;
         }
 
+        /* ================= 등장 애니메이션 ================= */
+        @keyframes revealUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+        @keyframes deviceIn { from { opacity: 0; translate: 0 32px; } to { opacity: 1; translate: 0 0; } }
+        .reveal { animation: revealUp 0.8s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 70ms + 80ms); }
+
         /* ================= 소개 ================= */
         .intro { flex: 1 1 380px; max-width: 480px; display: flex; flex-direction: column; gap: 22px; }
 
@@ -66,7 +74,8 @@
         .lead { margin-top: 14px; font-size: 1.02rem; line-height: 1.65; color: var(--text-2); word-break: keep-all; }
 
         .features { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .feature { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 14px 16px; }
+        .feature { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 14px 16px; transition: transform 0.35s var(--ease-out), border-color 0.35s ease; }
+        .feature:hover { transform: translateY(-3px); border-color: rgba(255, 255, 255, 0.16); }
         .feature-title { font-size: 0.92rem; font-weight: 700; margin-bottom: 4px; }
         .feature-desc { font-size: 0.8rem; line-height: 1.5; color: var(--text-2); word-break: keep-all; }
 
@@ -95,18 +104,21 @@
             border-radius: 999px; padding: 11px 20px;
             cursor: pointer; text-decoration: none;
             display: inline-flex; align-items: center; gap: 6px;
-            transition: transform 0.15s ease, filter 0.15s ease, background-color 0.15s ease;
+            transition: transform 0.25s var(--ease-out), filter 0.2s ease, background-color 0.2s ease;
         }
-        .btn:active { transform: scale(0.97); }
-        .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .btn:active { transform: scale(0.96); }
+        .btn:focus-visible, .link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
         .btn-primary { background: var(--accent); color: #000; border: none; }
         .btn-primary:hover { filter: brightness(1.08); }
         .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
         .btn-ghost:hover { background: rgba(255, 255, 255, 0.05); }
         .note { font-size: 0.8rem; color: var(--text-2); line-height: 1.5; }
+        .link { color: var(--text-2); font-size: 0.85rem; font-weight: 600; text-decoration: none; border-bottom: 1px solid rgba(255, 255, 255, 0.2); margin-left: 4px; transition: border-color 0.2s ease, color 0.2s ease; }
+        .link:hover { color: var(--text); }
+        .link:hover { border-color: var(--accent); }
 
         /* ================= 휴대폰 틀 ================= */
-        .device-slot { flex: 0 0 auto; width: calc(var(--device-w) * var(--scale)); height: calc(var(--device-h) * var(--scale)); position: relative; }
+        .device-slot { flex: 0 0 auto; width: calc(var(--device-w) * var(--scale)); height: calc(var(--device-h) * var(--scale)); position: relative; animation: deviceIn 1s var(--ease-sheet) 0.15s both; }
         .device {
             position: absolute; top: 0; left: 0;
             width: var(--device-w); height: var(--device-h);
@@ -119,18 +131,23 @@
             box-shadow: 0 0 0 2px #050505, 0 40px 80px rgba(0, 0, 0, 0.55), 0 0 120px rgba(34, 197, 94, 0.08);
         }
         .device iframe { width: 100%; height: 100%; border: 0; border-radius: 44px; background: #0F0F0F; display: block; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal, .device-slot { animation: none; }
+            .feature, .btn { transition: none; }
+        }
     </style>
 </head>
 <body>
     <main class="stage">
         <section class="intro">
-            <div>
+            <div class="reveal" style="--i: 0;">
                 <div class="eyebrow">PORTFOLIO DEMO</div>
                 <h1>DAY-TEN-O</h1>
                 <p class="lead">군 복무 중에 만든 일정·휴가 관리 웹앱이에요. 입대일만 넣으면 전역까지 남은 날을 계산하고, 휴가와 근무 일정을 한 화면에서 관리해요.</p>
             </div>
 
-            <ul class="features">
+            <ul class="features reveal" style="--i: 1;">
                 <li class="feature">
                     <div class="feature-title">전역 카운트다운</div>
                     <div class="feature-desc">전역일, 실시간 복무율, 주말·공휴일을 뺀 남은 일과일 자동 계산</div>
@@ -149,7 +166,7 @@
                 </li>
             </ul>
 
-            <div>
+            <div class="reveal" style="--i: 2;">
                 <div class="section-title">이렇게 써보세요</div>
                 <ol class="guide">
                     <li><div><b>날짜</b>를 누르면 일정·할 일·메모가 보여요. 카드를 좌우로 밀면 수정·삭제</div></li>
@@ -159,7 +176,7 @@
                 </ol>
             </div>
 
-            <div>
+            <div class="reveal" style="--i: 3;">
                 <div class="section-title">만든 방식</div>
                 <div class="chips">
                     <span class="chip">HTML · CSS</span>
@@ -169,10 +186,11 @@
                 </div>
             </div>
 
-            <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div class="reveal" style="--i: 4; display: flex; flex-direction: column; gap: 10px;">
                 <div class="actions">
                     <a class="btn btn-primary" href="app.html" target="_blank" rel="noopener">새 창에서 열기</a>
                     <button class="btn btn-ghost" type="button" id="resetBtn">데모 초기화</button>
+                    <a class="link" href="../leave-ten-o/">다음 버전 LEAVE-TEN-O →</a>
                 </div>
                 <p class="note">데모 데이터는 이 브라우저에만 저장되고, 다른 방문자에게 보이지 않아요.</p>
             </div>
